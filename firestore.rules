@@ -1,0 +1,144 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- GLOBAL HELPERS ---
+    function isSignedIn() { return request.auth != null; }
+    
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.uid == 'Xl8veRM2Qaa4scvVXByIXDgAnCn2' ||
+        request.auth.token.get('email', '') == 'ytpixinpc@gmail.com' ||
+        request.auth.token.get('email', '') == 'admin@akio.id' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- COLLECTIONS ---
+
+    // Products Collection
+    match /products/{productId} {
+      function isValidProduct(data) {
+        return data.name is string && data.name.size() > 0 &&
+               (data.price is int || data.price is float) &&
+               (data.stock is int || data.stock is float) &&
+               data.category is string &&
+               data.image is string &&
+               (data.discount is int || data.discount is float) &&
+               data.isFlashSale is bool;
+      }
+
+      allow read: if true;
+      
+      allow create: if isAdmin() && 
+                    isValidProduct(incoming()) &&
+                    incoming().createdAt == request.time;
+      
+      allow update: if isAdmin() && 
+                    isValidProduct(incoming()) &&
+                    (incoming().updatedAt == request.time || !('updatedAt' in incoming()));
+      
+      allow delete: if isAdmin();
+    }
+
+    // Global Settings
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(settingId);
+    }
+
+    // User Profiles
+    match /users/{userId} {
+      function isValidUser(data) {
+        return data.username is string && data.username.size() >= 3 && data.username.size() <= 50 &&
+               data.role in ['user', 'admin', 'member'];
+      }
+      
+      allow read: if isOwner(userId) || isAdmin();
+      
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(incoming());
+      
+      allow update: if isAdmin() || (
+        isOwner(userId) && 
+        incoming().diff(existing()).affectedKeys().hasOnly(['username']) &&
+        isValidUser(incoming())
+      );
+    }
+
+    // Vouchers Collection
+    match /vouchers/{voucherId} {
+      function isValidVoucher(data) {
+        return data.code is string &&
+               data.discount is number &&
+               data.isActive is bool &&
+               data.usageLimit is number &&
+               data.usedCount is number;
+      }
+
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create: if isAdmin() && 
+                    isValidVoucher(incoming()) &&
+                    incoming().createdAt == request.time;
+      
+      allow update: if isAdmin() || (
+        isSignedIn() && 
+        incoming().diff(existing()).affectedKeys().hasOnly(['usedCount']) &&
+        incoming().usedCount == existing().usedCount + 1
+      );
+      
+      allow delete: if isAdmin();
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      function isValidOrder(data) {
+        return data.userId == request.auth.uid &&
+               data.username is string &&
+               data.productName is string &&
+               data.price is number &&
+               data.totalDiscount is number &&
+               data.finalPrice is number &&
+               data.status in ['pending', 'success', 'paid', 'completed', 'cancelled', 'failed', 'challenge'] &&
+               (data.get('details', {}) is map) &&
+               (data.get('paymentMethod', '') is string) &&
+               (data.get('voucherCode', '') is string || data.get('voucherCode', null) == null);
+      }
+
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      
+      allow create: if isSignedIn() && isValidId(orderId) && isValidOrder(incoming()) && 
+                    incoming().createdAt == request.time;
+      
+      allow update: if isAdmin() || (
+        isSignedIn() && 
+        existing().userId == request.auth.uid &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status']) &&
+        incoming().status in ['success', 'pending', 'failed']
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Admins legacy flag
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

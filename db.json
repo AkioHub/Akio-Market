@@ -1,0 +1,75 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "iPhone 15 Pro Max",
+      "price": 24999000,
+      "category": "Smartphones",
+      "stock": 12,
+      "discount": 5,
+      "image": "https://images.unsplash.com/photo-1696446701796-da61225697cc?q=80&w=800&auto=format&fit=crop",
+      "isFlashSale": true
+    },
+    {
+      "id": "2",
+      "name": "MacBook Pro M3 Max",
+      "price": 42999000,
+      "category": "Laptops",
+      "stock": 4,
+      "discount": 10,
+      "image": "https://images.unsplash.com/photo-1611186871348-b1ec696e52c9?q=80&w=800&auto=format&fit=crop",
+      "isFlashSale": false
+    },
+    {
+      "id": "3",
+      "name": "AirPods Pro Gen 2",
+      "price": 3899000,
+      "category": "Accessories",
+      "stock": 25,
+      "discount": 15,
+      "image": "https://images.unsplash.com/photo-1588423770674-f28551404597?q=80&w=800&auto=format&fit=crop",
+      "isFlashSale": true
+    },
+    {
+      "id": "4",
+      "name": "Apple Watch Ultra 2",
+      "price": 15999000,
+      "category": "Watch",
+      "stock": 7,
+      "discount": 0,
+      "image": "https://images.unsplash.com/photo-1695752932134-2e650ccf6b90?q=80&w=800&auto=format&fit=crop",
+      "isFlashSale": false
+    },
+    {
+      "id": "5",
+      "name": "iPad Air M2",
+      "price": 10899000,
+      "category": "Tablets",
+      "stock": 15,
+      "discount": 5,
+      "image": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?q=80&w=800&auto=format&fit=crop",
+      "isFlashSale": false
+    },
+    {
+      "id": "6",
+      "name": "iPhone 15",
+      "price": 15499000,
+      "category": "Smartphones",
+      "stock": 20,
+      "discount": 8,
+      "image": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=800&auto=format&fit=crop",
+      "isFlashSale": true
+    }
+  ],
+  "settings": {
+    "flashSaleActive": true,
+    "flashSaleEndTime": "2026-05-12T00:00:00.000Z",
+    "globalDiscount": 5
+  },
+  "users": [
+    {
+      "username": "admin",
+      "password": "password"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Store item for sale",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "stock": { "type": "number" },
+        "discount": { "type": "number" },
+        "image": { "type": "string" },
+        "isFlashSale": { "type": "boolean" }
+      },
+      "required": ["name", "price", "category", "stock"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "Global store configuration",
+      "type": "object",
+      "properties": {
+        "flashSaleActive": { "type": "boolean" },
+        "flashSaleEndTime": { "type": "string", "format": "date-time" },
+        "globalDiscount": { "type": "number" }
+      }
+    },
+    "User": {
+      "title": "User",
+      "description": "User account information",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "password": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "isVIP": { "type": "boolean" }
+      }
+    },
+    "Order": {
+      "title": "Order",
+      "description": "User purchase record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "username": { "type": "string" },
+        "gameId": { "type": "string" },
+        "zoneId": { "type": "string" },
+        "serverId": { "type": "string" },
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "status": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "products": {
+      "schema": "Product",
+      "description": "List of available products"
+    },
+    "settings": {
+      "schema": "Setting",
+      "description": "Global shop settings (use doc ID 'global')"
+    },
+    "users": {
+      "schema": "User",
+      "description": "User accounts"
+    },
+    "orders": {
+      "schema": "Order",
+      "description": "Purchase history"
+    }
+  }
+}
